@@ -1,0 +1,49 @@
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+*.pem
+*.key
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Data (raw / sensitive) ────────────────────────────────────────────────────
+data/raw/
+data/chroma/
+data/processed/
+
+# ── ML models (large binaries) ───────────────────────────────────────────────
+models/*.joblib
+models/*.pkl
+models/*.pt
+models/*.bin
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── OS / IDE ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ── Pytest / coverage ─────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+

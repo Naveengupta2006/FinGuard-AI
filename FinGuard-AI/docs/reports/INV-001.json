@@ -1,5 +1,5 @@
 {
-  "status": "pending_human_review",
+  "status": "approved",
   "investigation_id": "INV-001",
   "question": "Why has the fraud rate increased this week? Identify high-risk transactions and prepare an investigation report.",
   "period": {
@@ -637,8 +637,10 @@
   "summary_source": "template",
   "human_review": {
     "required": true,
-    "status": "pending",
-    "reviewer": null
+    "status": "approved",
+    "reviewer": "naveen345",
+    "note": "",
+    "reviewed_at": "2026-11-05T14:03:39.303191+00:00"
   },
   "notice": "Educational decision-support output. No automated actions are taken.",
   "tool_calls": 11,

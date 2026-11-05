@@ -218,6 +218,57 @@ def anomaly_summary(start: str, end: str, top_n: int = 5) -> dict:
             "limitations": limits}
 
 
+
+def search_transactions(start: str, end: str, merchant_category: str = None, country: str = None,
+                        customer_id: str = None, min_amount: float = None, risk_band: str = None,
+                        limit: int = 20, offset: int = 0) -> dict:
+    s, e = _parse_range(start, end)
+    limit = max(1, min(int(limit), MAX_LIMIT * 2))
+    offset = int(offset)
+    if not 0 <= offset <= 100000:
+        raise ToolError("offset must be between 0 and 100000")
+
+    where, params = ["t.txn_timestamp >= :s", "t.txn_timestamp < :e"], {"s": s, "e": e}
+    if merchant_category is not None:
+        if not re.fullmatch(r"[a-z_]{2,30}", merchant_category):
+            raise ToolError("merchant_category must be lowercase letters/underscores")
+        where.append("t.merchant_category = :cat"); params["cat"] = merchant_category
+    if country is not None:
+        if not re.fullmatch(r"[A-Z]{2}", country):
+            raise ToolError("country must be a 2-letter uppercase code")
+        where.append("t.country = :country"); params["country"] = country
+    if customer_id is not None:
+        if not re.fullmatch(r"CUST-\d{5}", customer_id):
+            raise ToolError("customer_id must look like CUST-00001")
+        where.append("t.customer_id = :cust"); params["cust"] = customer_id
+    if min_amount is not None:
+        if float(min_amount) < 0:
+            raise ToolError("min_amount must be >= 0")
+        where.append("t.amount >= :min_amt"); params["min_amt"] = float(min_amount)
+    if risk_band is not None:
+        if risk_band not in BANDS:
+            raise ToolError(f"risk_band must be one of {sorted(BANDS)}")
+        where.append("p.risk_band = :band"); params["band"] = risk_band
+
+    clause = " AND ".join(where)   # sirf upar ke fixed fragments, user input nahi
+    total = _query(f"SELECT COUNT(*) AS n FROM transactions t LEFT JOIN risk_predictions p "
+                   f"USING (transaction_id) WHERE {clause}", params)[0]["n"]
+    rows = _query(f"""
+        SELECT t.transaction_id, t.customer_id, t.txn_timestamp AS timestamp, t.amount,
+               t.merchant_category, t.country, t.channel, t.device_type, t.is_fraud,
+               p.fraud_probability AS risk_score, p.risk_band
+        FROM transactions t LEFT JOIN risk_predictions p USING (transaction_id)
+        WHERE {clause}
+        ORDER BY t.txn_timestamp DESC, t.transaction_id
+        LIMIT :lim OFFSET :off""", {**params, "lim": limit, "off": offset})
+    limits = []
+    if risk_band is not None and (cov := _coverage_limit(start)):
+        limits.append(cov)
+    if rows and any(r["risk_score"] is None for r in rows):
+        limits.append(f"risk_score is empty for transactions before {SCORED_FROM} (not scored).")
+    return {"data": {"total": total, "returned": len(rows), "offset": offset, "transactions": rows},
+            "limitations": limits}
+
 # ---------------- registry (agent allowlist) ----------------
 TOOLS = {
     "fraud_kpis": fraud_kpis,
@@ -225,6 +276,7 @@ TOOLS = {
     "fraud_drivers": fraud_drivers,
     "top_risky_transactions": top_risky_transactions,
     "anomaly_summary": anomaly_summary,
+    "search_transactions": search_transactions,
 }
 
 

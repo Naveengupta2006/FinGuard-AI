@@ -4,7 +4,7 @@ import logging
 import sys
 import threading
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 
@@ -15,7 +15,8 @@ for _sub in ("api", "agents", "analytics", "rag", "database", "ml"):
 import joblib                                   # noqa: E402
 import pandas as pd                             # noqa: E402
 from fastapi import Depends, FastAPI, HTTPException, Path as ApiPath, Query, Request  # noqa: E402
-from fastapi.responses import JSONResponse      # noqa: E402
+from fastapi.responses import FileResponse, JSONResponse  # noqa: E402
+from fastapi.staticfiles import StaticFiles     # noqa: E402
 from sqlalchemy import text                     # noqa: E402
 
 import orchestrator                             # noqa: E402
@@ -26,7 +27,7 @@ import tools as sql_tools                       # noqa: E402
 import users                                    # noqa: E402
 from connection import get_engine               # noqa: E402
 from schemas import (ChatRequest, InvestigationRequest, LoginRequest,  # noqa: E402
-                     PolicySearchRequest, PredictRequest, ReviewRequest)
+                     PolicySearchRequest, PredictRequest, RegisterRequest, ReviewRequest)
 from train import add_features                  # noqa: E402
 
 log = logging.getLogger("finguard.api")
@@ -55,6 +56,27 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="FinGuard AI API", version="1.0.0", lifespan=lifespan,
               description="Educational decision-support API. No automated actions are taken.")
+
+
+FRONTEND_DIR = ROOT / "frontend"
+CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+       "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    resp = await call_next(request)
+    path = request.url.path
+    if path == "/" or path.startswith("/static"):
+        resp.headers["Content-Security-Policy"] = CSP      # inline script/style block, sirf apni files
+        resp.headers["X-Frame-Options"] = "DENY"
+        resp.headers["X-Content-Type-Options"] = "nosniff"
+        resp.headers["Referrer-Policy"] = "no-referrer"
+        resp.headers["Cache-Control"] = "no-cache"
+    elif path.startswith("/api"):
+        resp.headers["X-Content-Type-Options"] = "nosniff"
+        resp.headers["Cache-Control"] = "no-store"          # API data browser cache mein na rahe
+    return resp
 
 
 @app.exception_handler(Exception)
@@ -113,6 +135,29 @@ def login(body: LoginRequest, request: Request):
             "token_type": "bearer", "expires_in": security.TOKEN_MINUTES * 60, "role": user["role"]}
 
 
+@app.post("/api/v1/auth/register", tags=["auth"])
+def register(body: RegisterRequest):
+    if not users.USERNAME_RE.fullmatch(body.username):
+        raise HTTPException(400, "Username must be 3-50 chars: letters, digits, _ . -")
+    if len(body.password) < 10:
+        raise HTTPException(400, "Password must be at least 10 characters")
+    existing = users.get_user(admin_engine(), body.username)
+    if existing:
+        raise HTTPException(409, "Username already exists")
+    try:
+        users.upsert_user(admin_engine(), body.username, body.password, body.role)
+        audit_event(body.username, "user_registered", f"role={body.role}")
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {
+        "access_token": security.create_token(body.username, body.role),
+        "token_type": "bearer",
+        "expires_in": security.TOKEN_MINUTES * 60,
+        "role": body.role,
+        "username": body.username,
+    }
+
+
 # ---------------- viewer ----------------
 @app.get("/api/v1/transactions", tags=["data"])
 def list_transactions(start: str, end: str,
@@ -134,7 +179,30 @@ def risk_summary(start: str, end: str, user: dict = Depends(security.require_rol
     anomalies = _tool("anomaly_summary", start=start, end=end, top_n=3)
     limits = list(dict.fromkeys(kpis["limitations"] + anomalies["limitations"]))
     return {"period": {"start": start, "end": end}, "kpis": kpis["data"], "risk_bands": bands,
-            "anomalies": anomalies["data"], "limitations": limits}
+             "anomalies": anomalies["data"], "limitations": limits}
+
+
+@app.get("/api/v1/risk/trend", tags=["risk"])
+def risk_trend(start: str, end: str, user: dict = Depends(security.require_role("viewer"))):
+    return _tool("daily_trend", start=start, end=end)
+
+
+@app.get("/api/v1/risk/drivers", tags=["risk"])
+def risk_drivers(dimension: str, start: str, end: str,
+                 user: dict = Depends(security.require_role("viewer"))):
+    """Fraud rate by dimension: period vs 14-day baseline (start se pehle)."""
+    try:
+        st_ = date.fromisoformat(start)
+    except ValueError:
+        raise HTTPException(400, "Dates must be in YYYY-MM-DD format")
+    return _tool("fraud_drivers", dimension=dimension, start=start, end=end,
+                 baseline_start=(st_ - timedelta(days=14)).isoformat(),
+                 baseline_end=(st_ - timedelta(days=1)).isoformat(), limit=8)
+
+
+@app.get("/api/v1/data/coverage", tags=["data"])
+def data_coverage(user: dict = Depends(security.require_role("viewer"))):
+    return _tool("data_coverage")
 
 
 @app.post("/api/v1/policies/search", tags=["policy"])
@@ -242,3 +310,12 @@ def risk_predict(body: PredictRequest, user: dict = Depends(security.require_rol
             "limitations": ["risk_score is a ranking score, not a calibrated probability.",
                             "Model was trained on a synthetic dataset; educational use only.",
                             "This result must not be used to approve, deny or block anything automatically."]}
+
+
+# ---------------- frontend (static single-page app) ----------------
+if FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+    @app.get("/", include_in_schema=False)
+    def index():
+        return FileResponse(FRONTEND_DIR / "index.html")

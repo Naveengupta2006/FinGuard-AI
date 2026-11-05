@@ -10,6 +10,12 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1, max_length=200)
 
 
+class RegisterRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=10, max_length=200)
+    role: Literal["viewer", "analyst"] = "analyst"
+
+
 class DateRange(BaseModel):
     start: date
     end: date

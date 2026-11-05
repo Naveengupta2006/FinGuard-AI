@@ -11,7 +11,7 @@ import json
 import re
 import sys
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -67,6 +67,8 @@ def _clean(v):
         return float(v)
     if isinstance(v, datetime):
         return v.isoformat(sep=" ")
+    if isinstance(v, date):
+        return v.isoformat()
     return v
 
 
@@ -218,7 +220,6 @@ def anomaly_summary(start: str, end: str, top_n: int = 5) -> dict:
             "limitations": limits}
 
 
-
 def search_transactions(start: str, end: str, merchant_category: str = None, country: str = None,
                         customer_id: str = None, min_amount: float = None, risk_band: str = None,
                         limit: int = 20, offset: int = 0) -> dict:
@@ -269,6 +270,56 @@ def search_transactions(start: str, end: str, merchant_category: str = None, cou
     return {"data": {"total": total, "returned": len(rows), "offset": offset, "transactions": rows},
             "limitations": limits}
 
+
+def daily_trend(start: str, end: str) -> dict:
+    s, e = _parse_range(start, end)
+    rows = _query("""
+        SELECT txn_timestamp::date AS day,
+               COUNT(*) AS transactions,
+               COALESCE(SUM(is_fraud), 0) AS fraud_count
+        FROM transactions
+        WHERE txn_timestamp >= :s AND txn_timestamp < :e
+        GROUP BY txn_timestamp::date
+        ORDER BY day
+    """, {"s": s, "e": e})
+    days = []
+    for r in rows:
+        n = r["transactions"]
+        fc = r["fraud_count"]
+        days.append({
+            "day": str(r["day"]),
+            "transactions": n,
+            "fraud_count": fc,
+            "fraud_rate_pct": _pct(fc, n),
+        })
+    return {
+        "data": {"days": days, "total_days": len(days)},
+        "limitations": ["Daily fraud rates may be volatile on low-volume days."]
+    }
+
+
+def data_coverage() -> dict:
+    row = _query("""
+        SELECT MIN(txn_timestamp)::date AS first_date,
+               MAX(txn_timestamp)::date AS last_date,
+               COUNT(*) AS total_transactions
+        FROM transactions
+    """, {})[0]
+    first_d = str(row["first_date"]) if row["first_date"] else None
+    last_d = str(row["last_date"]) if row["last_date"] else None
+    return {
+        "data": {
+            "first_date": first_d,
+            "last_date": last_d,
+            "total_transactions": row["total_transactions"],
+            "scored_from": SCORED_FROM,
+        },
+        "limitations": [
+            f"Risk scores and anomaly events are only generated for transactions from {SCORED_FROM} onward."
+        ]
+    }
+
+
 # ---------------- registry (agent allowlist) ----------------
 TOOLS = {
     "fraud_kpis": fraud_kpis,
@@ -277,6 +328,8 @@ TOOLS = {
     "top_risky_transactions": top_risky_transactions,
     "anomaly_summary": anomaly_summary,
     "search_transactions": search_transactions,
+    "daily_trend": daily_trend,
+    "data_coverage": data_coverage,
 }
 
 
@@ -312,6 +365,7 @@ if __name__ == "__main__":
         ("top_risky_transactions", dict(start=cur[0], end=cur[1], limit=2)),
         ("anomaly_summary", dict(start=cur[0], end=cur[1], top_n=4)),
         ("drop_table", dict(table="transactions")),
+        ("data_coverage", dict()),
     ]
     for name, params in calls:
         print(f"\n=== {name} ===")

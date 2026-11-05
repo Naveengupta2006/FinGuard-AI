@@ -1,0 +1,677 @@
+{
+  "status": "pending_human_review",
+  "investigation_id": "INV-002",
+  "question": "Why has the fraud rate increased? Identify high-risk transactions and prepare an investigation report.",
+  "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-07",
+    "baseline_start": "2026-09-17",
+    "baseline_end": "2026-09-30"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "statement": "Fraud rate was 6.38% (450 of 7051 transactions) in 2026-10-01 to 2026-10-07, versus 0.73% (103 of 14159) in the baseline 2026-09-17 to 2026-09-30, which is 8.74 times the baseline rate.",
+      "evidence_ids": [
+        "E1"
+      ]
+    },
+    {
+      "id": "F2",
+      "statement": "Elevated fraud is concentrated in merchant_category: 'gift_cards' 54.71% (209 of 382 transactions; baseline 1.23%); 'electronics' 23.4% (139 of 594 transactions; baseline 1.49%); 'jewelry' 32.66% (65 of 199 transactions; baseline 2.03%). This is an association, not proof of cause.",
+      "evidence_ids": [
+        "E2"
+      ]
+    },
+    {
+      "id": "F3",
+      "statement": "Elevated fraud is concentrated in country: 'BR' 78.19% (147 of 188 transactions; baseline 2.02%); 'NG' 79.43% (139 of 175 transactions; baseline 2.35%); 'RU' 71.34% (117 of 164 transactions; baseline 2.7%). This is an association, not proof of cause.",
+      "evidence_ids": [
+        "E3"
+      ]
+    },
+    {
+      "id": "F4",
+      "statement": "Elevated fraud is concentrated in channel: 'online' 15.19% (421 of 2772 transactions; baseline 0.92%). This is an association, not proof of cause.",
+      "evidence_ids": [
+        "E4"
+      ]
+    },
+    {
+      "id": "F5",
+      "statement": "Elevated fraud is concentrated in device_type: 'new' 20.21% (421 of 2083 transactions; baseline 1.02%). This is an association, not proof of cause.",
+      "evidence_ids": [
+        "E5"
+      ]
+    },
+    {
+      "id": "F6",
+      "statement": "448 transactions were scored in the HIGH risk band during the period; the highest-scored are TXN-054972, TXN-054939, TXN-054999, TXN-058002, TXN-055980. The risk score is a ranking score, not a probability.",
+      "evidence_ids": [
+        "E6"
+      ]
+    },
+    {
+      "id": "F7",
+      "statement": "463 of 7051 transactions (6.57%) were flagged as statistical anomalies. Most common reasons: night-time (430); rare country 'BR' (151); rare country 'NG' (147); amount far above customer's typical (134); rare country 'RU' (120). Anomalies are outliers, not confirmed fraud.",
+      "evidence_ids": [
+        "E7"
+      ]
+    },
+    {
+      "id": "F8",
+      "statement": "The fraud-rate multiple (8.74x) exceeds the 5x threshold stated in TMP-002, Transaction Monitoring Policy, section 3.2 Critical Threshold, p.2.",
+      "evidence_ids": [
+        "E1",
+        "E8"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "text": "Escalate for human review as described in ESC-003, Risk Escalation Guidelines, section 2.2 Level 3 Escalation, p.1.",
+      "evidence_ids": [
+        "E9",
+        "E1"
+      ]
+    },
+    {
+      "text": "Analyst to review the 5 highest-scored transactions listed in evidence E6.",
+      "evidence_ids": [
+        "E6"
+      ]
+    },
+    {
+      "text": "No automated action is taken by this system. Blocking transactions, restricting accounts or contacting customers requires documented human approval (ESC-003, Risk Escalation Guidelines, section 3 Human Approval, p.2).",
+      "evidence_ids": [
+        "E10"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E1",
+      "source": "transaction_data",
+      "tool": "compare_periods",
+      "input_hash": "dd51e8c8f15f1cdb",
+      "summary": "Fraud KPIs for 2026-10-01 to 2026-10-07 compared with baseline 2026-09-17 to 2026-09-30",
+      "data": {
+        "current": {
+          "transactions": 7051,
+          "fraud_count": 450,
+          "total_amount": 5492142.35,
+          "fraud_amount": 1190533.07,
+          "fraud_rate_pct": 6.38,
+          "period": "2026-10-01 to 2026-10-07"
+        },
+        "baseline": {
+          "transactions": 14159,
+          "fraud_count": 103,
+          "total_amount": 9602477.18,
+          "fraud_amount": 159714.32,
+          "fraud_rate_pct": 0.73,
+          "period": "2026-09-17 to 2026-09-30"
+        },
+        "fraud_rate_change_multiple": 8.74
+      }
+    },
+    {
+      "id": "E2",
+      "source": "transaction_data",
+      "tool": "fraud_drivers",
+      "input_hash": "30553335c86d6f3d",
+      "summary": "Fraud rate by merchant_category, period vs baseline",
+      "data": {
+        "dimension": "merchant_category",
+        "groups": [
+          {
+            "value": "gift_cards",
+            "transactions": 382,
+            "fraud_count": 209,
+            "fraud_rate_pct": 54.71,
+            "share_of_period_fraud_pct": 46.44,
+            "baseline_transactions": 406,
+            "baseline_fraud_rate_pct": 1.23,
+            "low_sample": false
+          },
+          {
+            "value": "electronics",
+            "transactions": 594,
+            "fraud_count": 139,
+            "fraud_rate_pct": 23.4,
+            "share_of_period_fraud_pct": 30.89,
+            "baseline_transactions": 1005,
+            "baseline_fraud_rate_pct": 1.49,
+            "low_sample": false
+          },
+          {
+            "value": "jewelry",
+            "transactions": 199,
+            "fraud_count": 65,
+            "fraud_rate_pct": 32.66,
+            "share_of_period_fraud_pct": 14.44,
+            "baseline_transactions": 296,
+            "baseline_fraud_rate_pct": 2.03,
+            "low_sample": false
+          },
+          {
+            "value": "grocery",
+            "transactions": 1659,
+            "fraud_count": 14,
+            "fraud_rate_pct": 0.84,
+            "share_of_period_fraud_pct": 3.11,
+            "baseline_transactions": 3532,
+            "baseline_fraud_rate_pct": 0.42,
+            "low_sample": false
+          },
+          {
+            "value": "fashion",
+            "transactions": 632,
+            "fraud_count": 8,
+            "fraud_rate_pct": 1.27,
+            "share_of_period_fraud_pct": 1.78,
+            "baseline_transactions": 1432,
+            "baseline_fraud_rate_pct": 0.7,
+            "low_sample": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "E3",
+      "source": "transaction_data",
+      "tool": "fraud_drivers",
+      "input_hash": "21d0b9f437851436",
+      "summary": "Fraud rate by country, period vs baseline",
+      "data": {
+        "dimension": "country",
+        "groups": [
+          {
+            "value": "BR",
+            "transactions": 188,
+            "fraud_count": 147,
+            "fraud_rate_pct": 78.19,
+            "share_of_period_fraud_pct": 32.67,
+            "baseline_transactions": 99,
+            "baseline_fraud_rate_pct": 2.02,
+            "low_sample": false
+          },
+          {
+            "value": "NG",
+            "transactions": 175,
+            "fraud_count": 139,
+            "fraud_rate_pct": 79.43,
+            "share_of_period_fraud_pct": 30.89,
+            "baseline_transactions": 85,
+            "baseline_fraud_rate_pct": 2.35,
+            "low_sample": false
+          },
+          {
+            "value": "RU",
+            "transactions": 164,
+            "fraud_count": 117,
+            "fraud_rate_pct": 71.34,
+            "share_of_period_fraud_pct": 26.0,
+            "baseline_transactions": 74,
+            "baseline_fraud_rate_pct": 2.7,
+            "low_sample": false
+          },
+          {
+            "value": "IN",
+            "transactions": 4602,
+            "fraud_count": 24,
+            "fraud_rate_pct": 0.52,
+            "share_of_period_fraud_pct": 5.33,
+            "baseline_transactions": 9627,
+            "baseline_fraud_rate_pct": 0.68,
+            "low_sample": false
+          },
+          {
+            "value": "US",
+            "transactions": 601,
+            "fraud_count": 9,
+            "fraud_rate_pct": 1.5,
+            "share_of_period_fraud_pct": 2.0,
+            "baseline_transactions": 1337,
+            "baseline_fraud_rate_pct": 0.6,
+            "low_sample": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "E4",
+      "source": "transaction_data",
+      "tool": "fraud_drivers",
+      "input_hash": "c03ab4d20b0d8af0",
+      "summary": "Fraud rate by channel, period vs baseline",
+      "data": {
+        "dimension": "channel",
+        "groups": [
+          {
+            "value": "online",
+            "transactions": 2772,
+            "fraud_count": 421,
+            "fraud_rate_pct": 15.19,
+            "share_of_period_fraud_pct": 93.56,
+            "baseline_transactions": 5024,
+            "baseline_fraud_rate_pct": 0.92,
+            "low_sample": false
+          },
+          {
+            "value": "POS",
+            "transactions": 2313,
+            "fraud_count": 16,
+            "fraud_rate_pct": 0.69,
+            "share_of_period_fraud_pct": 3.56,
+            "baseline_transactions": 4935,
+            "baseline_fraud_rate_pct": 0.65,
+            "low_sample": false
+          },
+          {
+            "value": "mobile_app",
+            "transactions": 1604,
+            "fraud_count": 10,
+            "fraud_rate_pct": 0.62,
+            "share_of_period_fraud_pct": 2.22,
+            "baseline_transactions": 3503,
+            "baseline_fraud_rate_pct": 0.63,
+            "low_sample": false
+          },
+          {
+            "value": "ATM",
+            "transactions": 362,
+            "fraud_count": 3,
+            "fraud_rate_pct": 0.83,
+            "share_of_period_fraud_pct": 0.67,
+            "baseline_transactions": 697,
+            "baseline_fraud_rate_pct": 0.43,
+            "low_sample": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "E5",
+      "source": "transaction_data",
+      "tool": "fraud_drivers",
+      "input_hash": "d23e270f087fd65e",
+      "summary": "Fraud rate by device_type, period vs baseline",
+      "data": {
+        "dimension": "device_type",
+        "groups": [
+          {
+            "value": "new",
+            "transactions": 2083,
+            "fraud_count": 421,
+            "fraud_rate_pct": 20.21,
+            "share_of_period_fraud_pct": 93.56,
+            "baseline_transactions": 3514,
+            "baseline_fraud_rate_pct": 1.02,
+            "low_sample": false
+          },
+          {
+            "value": "known",
+            "transactions": 4968,
+            "fraud_count": 29,
+            "fraud_rate_pct": 0.58,
+            "share_of_period_fraud_pct": 6.44,
+            "baseline_transactions": 10645,
+            "baseline_fraud_rate_pct": 0.63,
+            "low_sample": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "E6",
+      "source": "risk_model",
+      "tool": "top_risky_transactions",
+      "input_hash": "e166fb9ee069eb69",
+      "summary": "Highest-scored transactions in the HIGH risk band (model fraud_v1)",
+      "data": {
+        "band": "HIGH",
+        "total_in_band": 448,
+        "returned": 5,
+        "transactions": [
+          {
+            "transaction_id": "TXN-054972",
+            "customer_id": "CUST-00217",
+            "timestamp": "2026-10-03 02:03:35",
+            "amount": 22366.33,
+            "merchant_category": "electronics",
+            "country": "RU",
+            "channel": "online",
+            "device_type": "new",
+            "risk_score": 0.9992,
+            "risk_band": "HIGH",
+            "model_version": "fraud_v1"
+          },
+          {
+            "transaction_id": "TXN-054939",
+            "customer_id": "CUST-01769",
+            "timestamp": "2026-10-02 23:50:46",
+            "amount": 10251.65,
+            "merchant_category": "electronics",
+            "country": "BR",
+            "channel": "online",
+            "device_type": "new",
+            "risk_score": 0.9988,
+            "risk_band": "HIGH",
+            "model_version": "fraud_v1"
+          },
+          {
+            "transaction_id": "TXN-054999",
+            "customer_id": "CUST-01239",
+            "timestamp": "2026-10-03 03:47:13",
+            "amount": 8781.26,
+            "merchant_category": "gift_cards",
+            "country": "BR",
+            "channel": "online",
+            "device_type": "new",
+            "risk_score": 0.9982,
+            "risk_band": "HIGH",
+            "model_version": "fraud_v1"
+          },
+          {
+            "transaction_id": "TXN-058002",
+            "customer_id": "CUST-01762",
+            "timestamp": "2026-10-06 03:40:48",
+            "amount": 6357.79,
+            "merchant_category": "electronics",
+            "country": "BR",
+            "channel": "online",
+            "device_type": "new",
+            "risk_score": 0.9982,
+            "risk_band": "HIGH",
+            "model_version": "fraud_v1"
+          },
+          {
+            "transaction_id": "TXN-055980",
+            "customer_id": "CUST-01066",
+            "timestamp": "2026-10-04 00:03:14",
+            "amount": 7763.49,
+            "merchant_category": "gift_cards",
+            "country": "BR",
+            "channel": "online",
+            "device_type": "new",
+            "risk_score": 0.998,
+            "risk_band": "HIGH",
+            "model_version": "fraud_v1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "E7",
+      "source": "anomaly_detection",
+      "tool": "anomaly_summary",
+      "input_hash": "5117358649784892",
+      "summary": "Anomaly flags and most common reasons (Isolation Forest + customer baseline)",
+      "data": {
+        "anomalies": 463,
+        "transactions_in_range": 7051,
+        "anomaly_rate_pct": 6.57,
+        "top_reasons": [
+          {
+            "reason": "night-time",
+            "count": 430
+          },
+          {
+            "reason": "rare country 'BR'",
+            "count": 151
+          },
+          {
+            "reason": "rare country 'NG'",
+            "count": 147
+          },
+          {
+            "reason": "amount far above customer's typical",
+            "count": 134
+          },
+          {
+            "reason": "rare country 'RU'",
+            "count": 120
+          }
+        ]
+      }
+    },
+    {
+      "id": "E8",
+      "source": "policy_document",
+      "tool": "policy_search",
+      "input_hash": "e5ac9f6b92ea2cfd",
+      "summary": "Policy passages retrieved for: weekly fraud rate multiple of baseline warning and critical thresholds",
+      "data": {
+        "results": [
+          {
+            "text": "A weekly fraud rate above 5 times the baseline is a critical event and must be escalated under the Risk Escalation Guidelines (ESC-003).",
+            "score": 0.7193,
+            "citation": "TMP-002, Transaction Monitoring Policy, section 3.2 Critical Threshold, p.2",
+            "doc_id": "TMP-002",
+            "section": "3.2 Critical Threshold",
+            "page_start": 2,
+            "page_end": 2
+          },
+          {
+            "text": "A weekly fraud rate above 2 times the baseline triggers a warning and a driver analysis by category, country, channel and device type.",
+            "score": 0.6805,
+            "citation": "TMP-002, Transaction Monitoring Policy, section 3.1 Warning Threshold, p.2",
+            "doc_id": "TMP-002",
+            "section": "3.1 Warning Threshold",
+            "page_start": 2,
+            "page_end": 2
+          },
+          {
+            "text": "The fraud operations team tracks the weekly confirmed fraud rate against a trailing 14-day baseline.",
+            "score": 0.6745,
+            "citation": "TMP-002, Transaction Monitoring Policy, section 3 Weekly Fraud-Rate Monitoring, p.2",
+            "doc_id": "TMP-002",
+            "section": "3 Weekly Fraud-Rate Monitoring",
+            "page_start": 2,
+            "page_end": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "E9",
+      "source": "policy_document",
+      "tool": "policy_search",
+      "input_hash": "d76ab6cc4254027b",
+      "summary": "Policy passages retrieved for: escalation level and timing when weekly fraud rate exceeds baseline",
+      "data": {
+        "results": [
+          {
+            "text": "Escalate to Level 2 within one business day when the weekly fraud rate is between 2 and 5 times the baseline, or when a single merchant category or country shows a fraud rate above 20 percent with at least 20 transactions.",
+            "score": 0.6932,
+            "citation": "ESC-003, Risk Escalation Guidelines, section 2.1 Level 2 Escalation, p.1",
+            "doc_id": "ESC-003",
+            "section": "2.1 Level 2 Escalation",
+            "page_start": 1,
+            "page_end": 1
+          },
+          {
+            "text": "Escalate to Level 3 on the same day when the weekly fraud rate exceeds 5 times the baseline, or when coordinated activity across multiple customers is suspected, such as many accounts affected through the same device type, country and category.",
+            "score": 0.6749,
+            "citation": "ESC-003, Risk Escalation Guidelines, section 2.2 Level 3 Escalation, p.1",
+            "doc_id": "ESC-003",
+            "section": "2.2 Level 3 Escalation",
+            "page_start": 1,
+            "page_end": 1
+          },
+          {
+            "text": "A weekly fraud rate above 5 times the baseline is a critical event and must be escalated under the Risk Escalation Guidelines (ESC-003).",
+            "score": 0.657,
+            "citation": "TMP-002, Transaction Monitoring Policy, section 3.2 Critical Threshold, p.2",
+            "doc_id": "TMP-002",
+            "section": "3.2 Critical Threshold",
+            "page_start": 2,
+            "page_end": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "E10",
+      "source": "policy_document",
+      "tool": "policy_search",
+      "input_hash": "8a521fd545a8f4d2",
+      "summary": "Policy passages retrieved for: human approval required before blocking transactions or accounts",
+      "data": {
+        "results": [
+          {
+            "text": "Any consequential action requires documented human approval. Consequential actions include blocking a transaction, freezing or restricting an account, contacting a customer, and filing a regulatory report.",
+            "score": 0.5182,
+            "citation": "ESC-003, Risk Escalation Guidelines, section 3 Human Approval, p.2",
+            "doc_id": "ESC-003",
+            "section": "3 Human Approval",
+            "page_start": 2,
+            "page_end": 2
+          },
+          {
+            "text": "The following rules generate alerts for analyst review. Rules never block transactions automatically.",
+            "score": 0.4653,
+            "citation": "TMP-002, Transaction Monitoring Policy, section 2 Monitoring Rules, p.1",
+            "doc_id": "TMP-002",
+            "section": "2 Monitoring Rules",
+            "page_start": 1,
+            "page_end": 1
+          },
+          {
+            "text": "A transaction made from a country that accounts for less than 3 percent of the customer base's historical transactions, combined with a new device, must be flagged for enhanced review.",
+            "score": 0.3977,
+            "citation": "TMP-002, Transaction Monitoring Policy, section 2.1 Unfamiliar Geography, p.1",
+            "doc_id": "TMP-002",
+            "section": "2.1 Unfamiliar Geography",
+            "page_start": 1,
+            "page_end": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "E11",
+      "source": "policy_document",
+      "tool": "policy_search",
+      "input_hash": "88b2ffb6f63a3538",
+      "summary": "Policy passages retrieved for: evidence requirements and limitations for investigation reports",
+      "data": {
+        "results": [
+          {
+            "text": "Reports must state known limitations, including data coverage gaps, small sample sizes, and the fact that statistical association does not establish causation. If evidence is insufficient, the report must say so rather than draw a conclusion.",
+            "score": 0.6886,
+            "citation": "FIN-SOP-001, Fraud Investigation Standard Operating Procedure, section 4.2 Limitations, p.3",
+            "doc_id": "FIN-SOP-001",
+            "section": "4.2 Limitations",
+            "page_start": 3,
+            "page_end": 3
+          },
+          {
+            "text": "Every finding in an investigation report must be traceable to evidence.",
+            "score": 0.6825,
+            "citation": "FIN-SOP-001, Fraud Investigation Standard Operating Procedure, section 4 Evidence Requirements, p.3",
+            "doc_id": "FIN-SOP-001",
+            "section": "4 Evidence Requirements",
+            "page_start": 3,
+            "page_end": 3
+          },
+          {
+            "text": "A finding is considered supported only if it is backed by transaction data and at least one independent signal, such as an anomaly flag, a policy rule match, or a documented customer contact. A model score alone is not sufficient evidence.",
+            "score": 0.584,
+            "citation": "FIN-SOP-001, Fraud Investigation Standard Operating Procedure, section 4.1 Minimum Evidence, p.3",
+            "doc_id": "FIN-SOP-001",
+            "section": "4.1 Minimum Evidence",
+            "page_start": 3,
+            "page_end": 3
+          }
+        ]
+      }
+    }
+  ],
+  "limitations": [
+    "Association only: these groups co-occur with fraud; this does not prove causation.",
+    "risk_score is a model ranking score, not a calibrated probability.",
+    "Anomalies are statistical outliers vs the baseline period, not confirmed fraud.",
+    "Policy text is reference data and must be cited; it is separate from transaction evidence."
+  ],
+  "policy_references": [
+    {
+      "citation": "TMP-002, Transaction Monitoring Policy, section 3.2 Critical Threshold, p.2",
+      "score": 0.7193,
+      "excerpt": "A weekly fraud rate above 5 times the baseline is a critical event and must be escalated under the Risk Escalation Guidelines (ESC-003).",
+      "evidence_id": "E8"
+    },
+    {
+      "citation": "TMP-002, Transaction Monitoring Policy, section 3.1 Warning Threshold, p.2",
+      "score": 0.6805,
+      "excerpt": "A weekly fraud rate above 2 times the baseline triggers a warning and a driver analysis by category, country, channel and device type.",
+      "evidence_id": "E8"
+    },
+    {
+      "citation": "TMP-002, Transaction Monitoring Policy, section 3 Weekly Fraud-Rate Monitoring, p.2",
+      "score": 0.6745,
+      "excerpt": "The fraud operations team tracks the weekly confirmed fraud rate against a trailing 14-day baseline.",
+      "evidence_id": "E8"
+    },
+    {
+      "citation": "ESC-003, Risk Escalation Guidelines, section 2.1 Level 2 Escalation, p.1",
+      "score": 0.6932,
+      "excerpt": "Escalate to Level 2 within one business day when the weekly fraud rate is between 2 and 5 times the baseline, or when a single merchant category or country shows a fraud rate above 20 percent with at least 20 transaction",
+      "evidence_id": "E9"
+    },
+    {
+      "citation": "ESC-003, Risk Escalation Guidelines, section 2.2 Level 3 Escalation, p.1",
+      "score": 0.6749,
+      "excerpt": "Escalate to Level 3 on the same day when the weekly fraud rate exceeds 5 times the baseline, or when coordinated activity across multiple customers is suspected, such as many accounts affected through the same device typ",
+      "evidence_id": "E9"
+    },
+    {
+      "citation": "ESC-003, Risk Escalation Guidelines, section 3 Human Approval, p.2",
+      "score": 0.5182,
+      "excerpt": "Any consequential action requires documented human approval. Consequential actions include blocking a transaction, freezing or restricting an account, contacting a customer, and filing a regulatory report.",
+      "evidence_id": "E10"
+    }
+  ],
+  "summary": "Fraud rate was 6.38% (450 of 7051 transactions) in 2026-10-01 to 2026-10-07, versus 0.73% (103 of 14159) in the baseline 2026-09-17 to 2026-09-30, which is 8.74 times the baseline rate. Elevated fraud is concentrated in merchant_category: 'gift_cards' 54.71% (209 of 382 transactions; baseline 1.23%); 'electronics' 23.4% (139 of 594 transactions; baseline 1.49%); 'jewelry' 32.66% (65 of 199 transactions; baseline 2.03%). This is an association, not proof of cause.",
+  "summary_source": "template",
+  "human_review": {
+    "required": true,
+    "status": "pending",
+    "reviewer": null
+  },
+  "notice": "Educational decision-support output. No automated actions are taken.",
+  "tool_calls": 11,
+  "agent_runs": [
+    {
+      "agent": "orchestrator",
+      "status": "completed",
+      "execution_time_ms": 0
+    },
+    {
+      "agent": "data_agent",
+      "status": "completed",
+      "execution_time_ms": 14
+    },
+    {
+      "agent": "fraud_agent",
+      "status": "completed",
+      "execution_time_ms": 88
+    },
+    {
+      "agent": "anomaly_agent",
+      "status": "completed",
+      "execution_time_ms": 16
+    },
+    {
+      "agent": "research_agent",
+      "status": "completed",
+      "execution_time_ms": 28643
+    },
+    {
+      "agent": "reporting_agent",
+      "status": "completed",
+      "execution_time_ms": 0
+    }
+  ]
+}

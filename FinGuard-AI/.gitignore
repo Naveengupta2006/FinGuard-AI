@@ -1,49 +1,29 @@
-# ── Secrets ──────────────────────────────────────────────────────────────────
+# secrets: NEVER commit
 .env
 *.pem
 *.key
 
-# ── Python ───────────────────────────────────────────────────────────────────
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-.eggs/
-
-# ── Virtual environments ──────────────────────────────────────────────────────
+# python
 .venv/
-venv/
-env/
+__pycache__/
+*.pyc
+.pytest_cache/
 
-# ── Data (raw / sensitive) ────────────────────────────────────────────────────
-data/raw/
-data/chroma/
+# node (optional frontend smoke test)
+node_modules/
+
+# generated artefacts (reproduce with: python scripts/run_pipeline.py)
+data/raw/*.csv
 data/processed/
-
-# ── ML models (large binaries) ───────────────────────────────────────────────
+data/chroma/
 models/*.joblib
-models/*.pkl
-models/*.pt
-models/*.bin
+models/*.json
+docs/reports/
+docs/eda/
 
-# ── Jupyter ───────────────────────────────────────────────────────────────────
-.ipynb_checkpoints/
-*.ipynb
-
-# ── OS / IDE ──────────────────────────────────────────────────────────────────
+# editor / OS
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
-.idea/
-.vscode/
-*.swp
-
-# ── Pytest / coverage ─────────────────────────────────────────────────────────
-.pytest_cache/
-.coverage
-htmlcov/
-
+*.log

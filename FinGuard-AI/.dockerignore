@@ -1,0 +1,37 @@
+# Git and environments
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+
+# Node
+node_modules
+
+# Sensitive files / local env
+.env
+*.pem
+*.key
+
+# Local datasets and caches (mounted as volumes instead)
+data/chroma
+data/raw/*.csv
+data/processed
+models/*.joblib
+models/*.json
+docs/reports/*.json
+docs/reports/*.md
+docs/eda/*.png
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.log
+

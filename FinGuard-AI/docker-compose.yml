@@ -1,0 +1,44 @@
+# FinGuard AI: API + web UI + PostgreSQL.
+# Reads DB_PASSWORD (required), DB_NAME, DB_USER, JWT_SECRET and the read-only credentials from ./.env
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      POSTGRES_DB: ${DB_NAME:-finguard}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # The database is reachable only from other containers. To use pgAdmin from your PC, add:
+    # ports: ["127.0.0.1:5433:5432"]
+
+  app:
+    build: .
+    image: finguard-ai:latest
+    restart: on-failure:3
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DB_HOST: db          # overrides DB_HOST=127.0.0.1 from .env (that value is for running without Docker)
+      DB_PORT: "5432"
+    ports:
+      - "127.0.0.1:8000:8000"   # reachable from this computer only
+    volumes:
+      - app_data:/app/data
+      - app_models:/app/models
+      - app_reports:/app/docs/reports
+
+volumes:
+  pgdata:
+  app_data:
+  app_models:
+  app_reports:
+

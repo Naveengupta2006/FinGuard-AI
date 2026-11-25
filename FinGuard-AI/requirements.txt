@@ -1,0 +1,22 @@
+# FinGuard AI runtime dependencies.
+# Lower bounds are conservative. Developed and tested against (Python 3.12/3.13):
+#   pandas 3.0, numpy 2.4, scikit-learn 1.8, SQLAlchemy 2.1, psycopg 3.3, FastAPI 0.162, pydantic 2.14,
+#   PyJWT 2.7, langgraph 1.2, chromadb 1.5, PyMuPDF 2.0. For an exact lockfile run: pip freeze > requirements.lock
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+joblib>=1.4
+matplotlib>=3.8
+sqlalchemy>=2.0
+psycopg[binary]>=3.2
+python-dotenv>=1.0
+fastapi>=0.115
+uvicorn>=0.30
+pydantic>=2.7
+pyjwt>=2.7
+langgraph>=1.2
+langchain-ollama>=1.0
+chromadb>=1.0
+sentence-transformers>=3.0
+pymupdf>=1.24
+

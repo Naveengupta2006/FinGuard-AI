@@ -1,0 +1,29 @@
+# secrets: NEVER commit
+.env
+*.pem
+*.key
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# node (optional frontend smoke test)
+node_modules/
+
+# generated artefacts (reproduce with: python scripts/run_pipeline.py)
+data/raw/*.csv
+data/processed/
+data/chroma/
+models/*.joblib
+models/*.json
+docs/reports/
+docs/eda/
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
